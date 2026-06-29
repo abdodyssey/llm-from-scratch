@@ -1,14 +1,6 @@
 from pathlib import Path
+import random
 
-# =========================
-# Load dataset
-# =========================
-
-text = Path("data/shakespeare.txt").read_text()
-
-# =========================
-# Build Bigrams
-# =========================
 
 def build_bigrams(text):
     bigrams = []
@@ -17,13 +9,6 @@ def build_bigrams(text):
         bigrams.append((text[i], text[i + 1]))
 
     return bigrams
-
-
-bigrams = build_bigrams(text)
-
-print(f"Total bigrams : {len(bigrams)}")
-print(bigrams[:10])
-
 
 
 # =========================
@@ -46,9 +31,6 @@ def build_transitions(bigrams):
     return transitions
 
 
-transitions = build_transitions(bigrams)
-
-print(transitions["a"])
 
 
 
@@ -71,7 +53,6 @@ def build_probabilities(transitions):
     return probabilities
 
 
-probabilities = build_probabilities(transitions)
 
 
 
@@ -79,7 +60,7 @@ probabilities = build_probabilities(transitions)
 # Top 10 Next Characters
 # =========================
 
-def print_top10(character):
+def print_top10(character, probabilities):
 
     if character not in probabilities:
         print(f"Character {repr(character)} tidak ditemukan.")
@@ -96,26 +77,17 @@ def print_top10(character):
     for next_char, prob in top10:
         print(f"{repr(next_char):>4} -> {prob:.4f}")
 
-selected_chars = [
-    "a",
-    "e",
-    "t",
-    " ",
-    "\n"
-]
 
-for ch in selected_chars:
-    print_top10(ch)
 
   
 
-import random
+
 
 # =========================
 # Text Generation
 # =========================
 
-def generate_text(start_char="T", max_length=500):
+def generate_text(probabilities, start_char="T", max_length=500):
     result = start_char
     current = start_char
 
@@ -133,5 +105,38 @@ def generate_text(start_char="T", max_length=500):
     return result
 
 
-print("\n===== GENERATED TEXT =====\n")
-print(generate_text())
+
+
+
+
+def main():
+
+    text = Path("data/shakespeare.txt").read_text()
+
+    bigrams = build_bigrams(text)
+
+    print(f"Total bigrams : {len(bigrams)}")
+    print(bigrams[:10])
+
+    transitions = build_transitions(bigrams)
+
+    print(transitions["a"])
+
+    probabilities = build_probabilities(transitions)
+
+    selected_chars = [
+        "a",
+        "e",
+        "t",
+        " ",
+        "\n"
+    ]
+
+    for ch in selected_chars:
+        print_top10(ch, probabilities)
+
+    print("\n===== GENERATED TEXT =====\n")
+    print(generate_text(probabilities))
+
+if __name__ == "__main__":
+    main()
