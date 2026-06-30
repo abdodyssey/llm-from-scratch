@@ -4,31 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from tokenizer import encode, stoi
-
-
-class BigramLanguageModel(nn.Module):
-
-    def __init__(self, vocab_size):
-        super().__init__()
-
-        # (vocab_size, vocab_size)
-        self.token_embedding_table = nn.Embedding(vocab_size, vocab_size)
-
-    def forward(self, idx, targets=None):
-        logits = self.token_embedding_table(idx)
-
-        if targets is None:
-            loss = None
-        else:
-            B, T, C = logits.shape
-
-            logits = logits.view(B * T, C)
-            targets = targets.view(B * T)
-
-            loss = F.cross_entropy(logits, targets)
-
-        return logits, loss
-
+from model import GPTLanguageModel
 
 def get_batch(data, block_size, batch_size):
     ix = torch.randint(len(data) - block_size, (batch_size,))
@@ -85,7 +61,7 @@ def main():
 
     vocab_size = len(stoi)
 
-    model = BigramLanguageModel(vocab_size)
+    model = GPTLanguageModel(vocab_size)
 
     x, y = get_batch(train_data, block_size, batch_size)
 
