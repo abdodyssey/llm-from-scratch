@@ -63,10 +63,22 @@ def main():
 
     model = GPTLanguageModel(vocab_size)
 
+    # ==================
+    # PARAMETER COUNT
+    # ==================
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"Total Parameters: {total_params:,}")
+
+    # ==================
+    # GET BATCH
+    # ==================
     x, y = get_batch(train_data, block_size, batch_size)
 
     logits, loss = model(x, y)
 
+    # ===================
+    # SELF ASSERTIONS
+    # ===================
     assert x.shape == (batch_size, block_size)
     assert y.shape == (batch_size, block_size)
     assert logits.shape == (batch_size * block_size, vocab_size)
@@ -74,6 +86,9 @@ def main():
 
     print("✅ Shape assertions passed.")
 
+    # ==================
+    # BASIC TRAINING LOOP
+    # ==================
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
 
     for step in range(2000):
@@ -87,6 +102,7 @@ def main():
         optimizer.step()
 
         if step % 200 == 0:
+            # BETTER TRANING -> IMPROVE
             losses = estimate_loss(
                 model,
                 train_data,

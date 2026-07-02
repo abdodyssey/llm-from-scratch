@@ -1,7 +1,9 @@
 from pathlib import Path
 
+# get dataset
 text = Path("data/shakespeare.txt").read_text()
 
+# tokenizer code
 chars = sorted(set(text))
 
 stoi = {c: i for i, c in enumerate(chars)}

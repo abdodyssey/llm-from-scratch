@@ -9,12 +9,9 @@ def build_bigrams(text):
         bigrams.append((text[i], text[i + 1]))
 
     return bigrams
-
-
 # =========================
 # Transition Inspector
 # =========================
-
 def build_transitions(bigrams):
     transitions = {}
 
@@ -29,15 +26,9 @@ def build_transitions(bigrams):
             transitions[current][next_char] += 1
 
     return transitions
-
-
-
-
-
 # =========================
 # Build Probabilities
 # =========================
-
 def build_probabilities(transitions):
     probabilities = {}
 
@@ -51,15 +42,9 @@ def build_probabilities(transitions):
             probabilities[current][next_char] = count / total
 
     return probabilities
-
-
-
-
-
 # =========================
 # Top 10 Next Characters
 # =========================
-
 def print_top10(character, probabilities):
 
     if character not in probabilities:
@@ -76,17 +61,9 @@ def print_top10(character, probabilities):
 
     for next_char, prob in top10:
         print(f"{repr(next_char):>4} -> {prob:.4f}")
-
-
-
-  
-
-
-
 # =========================
 # Text Generation
 # =========================
-
 def generate_text(probabilities, start_char="T", max_length=500):
     result = start_char
     current = start_char
@@ -103,11 +80,6 @@ def generate_text(probabilities, start_char="T", max_length=500):
         result += current
 
     return result
-
-
-
-
-
 
 def main():
 
