@@ -16,7 +16,7 @@ class Head(nn.Module):
 
     def forward(self, x):
 
-        B, T, C = x.shape
+        _, T, _ = x.shape
 
         k = self.key(x)
         q = self.query(x)
@@ -31,13 +31,15 @@ class Head(nn.Module):
 
         wei = F.softmax(wei, dim=-1)
 
+        if not hasattr(self, "_printed_weights"):
+            print("Attention Weights:", wei.shape)
+            self._printed_weights = True
+
         out = wei @ v
 
-        if not hasattr(self, "_printed_scores"):
-            print("Attention Scores:", wei.shape)
-
         if not hasattr(self, "_printed_out"):
-            print("Attention Output:", out.shape)
+            print("Head Output:", out.shape)
+            self._printed_out = True
 
         return out
 
@@ -53,12 +55,14 @@ class MultiHeadAttention(nn.Module):
         self.proj = nn.Linear(n_embd, n_embd)
 
     def forward(self, x):
+
         out = torch.cat([head(x) for head in self.heads], dim=-1)
-        out = self.proj(out)
 
         if not hasattr(self, "_printed_multi"):
             print("MultiHead Output:", out.shape)
             self._printed_multi = True
+
+        out = self.proj(out)
 
         if not hasattr(self, "_printed_proj"):
             print("Projection Output:", out.shape)
@@ -81,7 +85,7 @@ class FeedForward(nn.Module):
         out = self.net(x)
 
         if not hasattr(self, "_printed_ffn"):
-            print("FeedForward Output:", x.shape)
+            print("FeedForward Output:", out.shape)
             self._printed_ffn = True
 
         return out
@@ -135,16 +139,13 @@ class GPTLanguageModel(nn.Module):
             block_size=self.block_size,
         )
 
-        # ===========================
-        # SIMPLE NEURAL NETWORK MODEL
-        # ===========================
 
         # Language Model Head
         self.lm_head = nn.Linear(self.n_embd, vocab_size)
 
     def forward(self, idx, targets=None):
 
-        B, T = idx.shape
+        _, T = idx.shape
 
         if not hasattr(self, "_printed_input"):
             print("Input IDs          :", idx.shape)
@@ -191,12 +192,9 @@ class GPTLanguageModel(nn.Module):
         else:
             B, T, C = logits.shape
 
-            logits = logits.view(B * T, C)
-            targets = targets.view(B * T)
+            logits = logits.reshape(B * T, C)
+            targets = targets.reshape(B * T)
 
-            # =================================================
-            # SIMPLE NEURAL NETWORK MODEL / MODEL NEURAL BIGRAM
-            # =================================================
             # CROSS ENTROPY LOSS
             loss = F.cross_entropy(logits, targets)
 
